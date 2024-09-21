@@ -1,0 +1,47 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "Magic.ProcessingFormNET/1.0.0": {
+        "dependencies": {
+          "Magic.FormsNET": "1.0.0",
+          "Magic.HelperNET": "1.0.0"
+        },
+        "runtime": {
+          "Magic.ProcessingFormNET.dll": {}
+        }
+      },
+      "Magic.FormsNET/1.0.0": {
+        "runtime": {
+          "Magic.FormsNET.dll": {}
+        }
+      },
+      "Magic.HelperNET/1.0.0": {
+        "runtime": {
+          "Magic.HelperNET.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Magic.ProcessingFormNET/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Magic.FormsNET/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Magic.HelperNET/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
