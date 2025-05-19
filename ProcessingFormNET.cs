@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System.Diagnostics;
+using System.Windows.Forms;
 using Magic.FormsNET;
 
 namespace Magic
@@ -101,6 +102,22 @@ namespace Magic
 
         } // end of method
 
+        // Helper untuk setting UI sebelum ShowDialog
+        private static void ApplyUIBeforeShow(ProcessingFormNET form, string message, Form? owner)
+        {
+            form.PesanLabel.Text = message;
+
+            if (owner == null)
+            {
+                form.StartPosition = FormStartPosition.CenterScreen;
+            }
+            else
+            {
+                form.TopMost = owner.TopMost;
+                form.StartPosition = FormStartPosition.CenterParent;
+            }
+        }
+
         public static void Execute(string message, Action someAction)
         {
             // Dapatkan form yang saat ini aktif
@@ -146,7 +163,7 @@ namespace Magic
             processingForm.Start(message, owner);
         } // end of method
 
-        public static async Task ExecuteAsync(string message, Func<Task> someAction)
+        public static async Task ExecuteAsync_(string message, Func<Task> someAction)
         {
 
             // Dapatkan form yang saat ini aktif
@@ -164,6 +181,82 @@ namespace Magic
                 // Menunggu form ditampilkan dan task di dalamnya selesai
                 processingForm.Start(message, owner);
             });
+
+        } // end of method
+
+        public static async Task ExecuteAsync(string message, Func<Task> someAction)
+        {
+            // Dapatkan form yang saat ini aktif
+            Form? owner = Application.OpenForms.OfType<Form>().LastOrDefault();
+
+            // Buat instance ProcessingForm
+            ProcessingFormNET processingForm = new ProcessingFormNET(someAction);
+
+            // Set currentInstance
+            currentInstance = processingForm;
+
+            // Setup UI di thread yang sesuai
+            if (processingForm.InvokeRequired)
+            {
+                processingForm.Invoke((MethodInvoker)delegate
+                {
+                    ApplyUIBeforeShow(processingForm, message, owner);
+                });
+            }
+            else
+            {
+                ApplyUIBeforeShow(processingForm, message, owner);
+            }
+
+            // Pakai TaskCompletionSource agar bisa di-await
+            var tcs = new TaskCompletionSource<bool>();
+            processingForm.FormClosed += (s, e) =>
+            {
+                tcs.TrySetResult(true);
+            };
+
+            // Tampilkan form (blocking di UI thread)
+            processingForm.ShowDialog(owner);
+
+            // Tunggu sampai form ditutup
+            await tcs.Task;
+        }
+
+        public static async Task ExecuteAsync_(string message, Func<Task> someAction, int type)
+        {
+
+            // Dapatkan form yang saat ini aktif
+            Form? owner = Application.OpenForms.OfType<Form>().LastOrDefault();
+
+            // Buat instance ProcessingForm
+            ProcessingFormNET processingForm = new ProcessingFormNET(someAction);
+
+            // Set properti currentInstance
+            currentInstance = processingForm;
+
+            // Replikasi isi dari Start()
+            if (processingForm.InvokeRequired)
+            {
+                processingForm.Invoke((MethodInvoker)delegate
+                {
+                    ApplyUIBeforeShow(processingForm, message, owner);
+                });
+            }
+            else
+            {
+                ApplyUIBeforeShow(processingForm, message, owner);
+            }
+
+            // Gunakan TaskCompletionSource agar async menunggu form ditutup
+            var tcs = new TaskCompletionSource<bool>();
+            processingForm.FormClosed += (s, e) =>
+            {
+                tcs.TrySetResult(true);
+            };
+
+            processingForm.ShowDialog(owner); // tetap blocking di thread UI
+
+            await tcs.Task; // resume setelah form ditutup
 
         } // end of method
 
