@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using System.Windows.Forms;
-using Magic.FormsNET;
+﻿using System.Windows.Forms;
 
 namespace Magic
 {
